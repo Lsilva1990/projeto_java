@@ -45,7 +45,7 @@ public class TelaCadClienteController implements Initializable {
     @FXML
     private ComboBox<Type> cbTypeClient;
             
-    List<Type> lsTypes;  // define a collections que manterá os usuários cadastrados
+    ObservableList<Type> lsTypes;  // define a collections que manterá os usuários cadastrados
     Type  typeSel; // mantém o produto selecionado no combobox
     int indiceSel; // guarda o índice do combobox selecionado
 
@@ -55,10 +55,11 @@ public class TelaCadClienteController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         type = new TypesDAO();
-        
-        lsTypes = type.getAllTypes();
+       
+        lsTypes = FXCollections.observableArrayList(type.getAllTypes());
+         
         System.out.println(lsTypes);
-        cbTypeClient.getItems().addAll(lsTypes.set(indiceSel, typeSel) ; // atribui a lista observável ao combobox
+        cbTypeClient.setItems(lsTypes); ; // atribui a lista observável ao combobox
     }
 
     @FXML
@@ -80,6 +81,7 @@ public class TelaCadClienteController implements Initializable {
     @FXML
     private void select(ActionEvent event) {
          typeSel = cbTypeClient.getSelectionModel().getSelectedItem();
+         System.out.println(typeSel);
     }
 
       
