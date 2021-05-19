@@ -5,6 +5,7 @@
  */
 package Controller;
 
+import DAO.ClientsDAO;
 import Model.TestandoCliente;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -26,12 +27,14 @@ import javafx.stage.Stage;
  */
 public class ListaClientesController implements Initializable {
     
-//    ListView<String> list = new ListView<>();
-//    ObservableList<String> data = FXCollections.observableArrayList(
-//            "chocolate", "salmon", "gold", "coral", "darkorchid",
-//            "darkgoldenrod", "lightsalmon", "black", "rosybrown", "blue",
-//            "blueviolet", "brown");    
-//   
+    ClientsDAO client;
+    
+    ListView<String> list = new ListView<>();
+    ObservableList<String> data = FXCollections.observableArrayList(
+            "chocolate", "salmon", "gold", "coral", "darkorchid",
+            "darkgoldenrod", "lightsalmon", "black", "rosybrown", "blue",
+            "blueviolet", "brown");    
+   
     //@FXML
     //private ListView<String> listClient;
     @FXML

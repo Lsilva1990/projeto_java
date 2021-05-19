@@ -59,7 +59,7 @@ public class TelaCadClienteController implements Initializable {
         lsTypes = FXCollections.observableArrayList(type.getAllTypes());
          
         System.out.println(lsTypes);
-        cbTypeClient.setItems(lsTypes); ; // atribui a lista observável ao combobox
+        cbTypeClient.setItems(lsTypes); // atribui a lista observável ao combobox
     }
 
     @FXML
