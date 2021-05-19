@@ -1,0 +1,213 @@
+select cte.conhecimento_id
+                 , cte.num_conhecimento
+                 , cte.serie
+                 , to_char(cte.data_emissao, :"SYS_B_00") as data_emissao
+                 , cte.num_romaneio
+                 , cte.rem_razao_social
+                 , kss.pkg_string.fnc_formata_cnpj_cpf(cte.rem_cnpj_cpf) as rem_cnpj_cpf
+                 , cte.dest_razao_social
+                 , kss.pkg_string.fnc_formata_cnpj_cpf(cte.dest_cnpj_cpf) as dest_cnpj_cpf
+                 , cte.cob_razao_social
+                 , kss.pkg_string.fnc_formata_cnpj_cpf(cte.cob_cnpj_cpf) as cob_cnpj_cpf
+                 , dc.documento_id
+                 , ds.cod_status
+                 , ds.descricao_status
+                 , nvl(ds.situacao_id, :"SYS_B_01") as situacao_id
+                 , ds.emitido
+                 , ds.permite_editar
+                 , ds.permite_inutilizar
+                 , ds.permite_cancelar
+                 , ds.descricao_situacao
+                 , cte.user_insert
+                 , nvl(cte.status_email_remetente,:"SYS_B_02") as status_email_remetente
+                 , nvl(cte.status_email_destinatario,:"SYS_B_03") as status_email_destinatario
+                 , nvl(cte.status_email_recebedor,:"SYS_B_04") as status_email_recebedor
+                 , nvl(cte.status_email_expedidor,:"SYS_B_05") as status_email_expedidor
+                 , nvl(cte.status_email_tomador,:"SYS_B_06") as status_email_tomador
+                 , nvl(cte.status_email_proprietario,:"SYS_B_07") as status_email_proprietario
+                 , nvl(cte.status_email_emissor,:"SYS_B_08") as status_email_emissor
+                 , nvl(cte.status_email_transportador,:"SYS_B_09") as status_email_transportador
+                 , fiscal.pkg_cte_email.fnc_email_cte(cte.cod_remetente) as email_remetente
+                 , fiscal.pkg_cte_email.fnc_email_cte(cte.cod_destinatario) as email_destinatario
+                 , fiscal.pkg_cte_email.fnc_email_cte(cte.entrega_cod_pessoa) as email_recebedor
+                 , fiscal.pkg_cte_email.fnc_email_cte(cte.coleta_cod_pessoa) as email_expedidor
+                 , fiscal.pkg_cte_email.fnc_email_cte(cte.cod_consignatario) as email_tomador
+                 , fiscal.pkg_cte_email.fnc_email_cte(cte.cod_proprietario) as email_proprietario
+                 , fiscal.pkg_cte_email.fnc_email_cte(cte.cod_pessoa_filial) as email_emissor
+                 , (select fiscal.pkg_cte_email.fnc_email_cte(sc.cod_transportador_sugerido)
+                      from logistica.v$solicitacao_carga sc
+                     where sc.solicitacao_carga_id = cte.solicitacao_carga_id) as email_transportador
+                 , cte.cod_pessoa_filial
+                 , (select p.cliente
+                      from kss.v$pessoa p
+                      where p.cod_pessoa = cte.cod_pessoa_filial) as filial
+                 , cte.cod_centro_custo
+                 , (select cc.centro_custo
+                      from kss.v$centro_custo cc
+                     where cc.cod_centro_custo = cte.cod_centro_custo) as centro_custo
+                  , cte.coleta_municipio || :"SYS_B_10" || cte.coleta_uf as coleta
+                 , cte.entrega_municipio || :"SYS_B_11" || cte.entrega_uf as entrega
+                 , (select te.descricao
+                      from sefaz.v$tipo_emissao te
+                     where te.cod_docto = :"SYS_B_12"
+                       and te.tipo_emissao_id =  ds.tipo_emissao_id) as tipo_emissao
+                 , ds.tipo_emissao_id
+                 , d.ambiente_id
+                 , cTE.liberado_impressao
+                 , oper.pkg_veiculo.fnc_get_cod_veiculo(cte.placa_tracao) as cod_veiculo_tracao
+                 , cte.placa_tracao
+                 , cte.modalidade
+                 , cte.nome_motorista
+                 , cte.cod_organizacional || :"SYS_B_13" ||
+                   (select descricao
+                      from kss.v$organizacional org
+                     where org.organizacional_id = cte.organizacional_id ) as organizacional
+                 , fiscal.pkg_cte.fnc_permite_liberar_impressao(cte.conhecimento_id) as libera_impressao
+                 , fiscal.pkg_cte.fnc_permite_cancelar_cte(cte.conhecimento_id) as libera_cancelamento
+                 , ds.permite_consulta_chave
+                 , cte.conhecimento_tipo_id
+                 , (select c.num_conhecimento || :"SYS_B_14" || c.serie
+                      from fiscal.v$conhecimento_substituto cs
+                     inner join fiscal.v$conhecimento c
+                        on c.conhecimento_id = cs.conhecimento_substituto_id
+                     where cs.conhecimento_id = cte.conhecimento_id) as num_conhecimento_substituto
+                 , (select c.substituto
+                      from fiscal.v$conhecimento_substituto cs
+                     inner join fiscal.v$conhecimento c
+                        on c.conhecimento_id = cs.conhecimento_substituto_id
+                     where cs.conhecimento_id = cte.conhecimento_id) as substituto
+                 , (select c.num_conhecimento || :"SYS_B_15" || c.serie
+                      from fiscal.v$conhecimento_substituto cs
+                     inner join fiscal.v$conhecimento c
+                        on c.conhecimento_id = cs.conhecimento_id
+                     where cs.conhecimento_substituto_id = cte.conhecimento_id) as num_conhecimento_substituido
+                  , cte.substituto as tipo_substituto
+                  , (select op.declaracao_cte_id
+                       from logistica.v$operacao op
+                      where cte.operacao_id = op.operacao_id) declaracao_id
+                  , cte.coleta_uf
+                  , cte.entrega_uf
+                  /MDFE/
+                  , m.mdfe_id
+                  , m.num_mdfe
+                  , m.serie as serie_mdfe
+         , to_char(m.data_emissao, :"SYS_B_16") as data_emissao_mdfe
+                  , mds.permite_editar as permite_editar_mdfe
+                  , mds.situacao_id as situacao_id_mdfe
+                  , mds.cod_status as mdfe_id_status
+                  , mds.emitido as emitido_mdfe
+                  , mds.documento_id as documento_id_mdfe
+                  , mds.descricao_status as status_mdfe
+                  , mds.permite_consulta_chave as permite_consulta_chave_mdfe
+                  , mds.permite_inutilizar as permite_inutilizar_mdfe
+                  , mds.tipo_emissao_id as tipo_emissao_id_mdfe
+                  , m.data_cancelamento as data_cancelamento_mdfe
+                  , m.data_encerramento as data_encerramento_mdfe
+                  , case when cte.substituto = :"SYS_B_17" or
+                              (select sign(count(:"SYS_B_18"))
+                                from fiscal.v$conhecimento_complemento cc
+                               where cc.conhecimento_complemento_id = cte.conhecimento_id) = :"SYS_B_19"
+                         then :"SYS_B_20" else fiscal.pkg_mdfe.fnc_permite_emissao(p_num_romaneio => cte.num_romaneio
+               , p_carga_consolidada_id => (select max(ccc.carga_consolidada_id) keep(dense_rank last order by ccc.date_insert)
+                         from logistica.v$carga_consolidada_carga ccc
+                        where ccc.solicitacao_carga_id = cte.solicitacao_carga_id
+                          and ccc.situacao_id not in (:"SYS_B_21"))
+               , p_throw => :"SYS_B_22"
+               )
+                    end as permite_mdfe
+                  , (select case when count(:"SYS_B_23") = :"SYS_B_24" and mds.situacao_id = :"SYS_B_25" and mds.cod_status <> :"SYS_B_26" then :"SYS_B_27" else :"SYS_B_28" end
+                       from sefaz.requisicao r
+                      where r.documento_id = mds.documento_id
+                        and r.servico_id in (:"SYS_B_29",:"SYS_B_30")) permite_excluir_mdfe
+                  , decode((select count(:"SYS_B_31")
+                              from fiscal.v$carta_correcao_eletronica cce
+                             where cce.conhecimento_id = cte.conhecimento_id
+                               and cce.cod_status = :"SYS_B_32"), :"SYS_B_33", :"SYS_B_34", :"SYS_B_35") as possui_cce
+                 , (select ct.descricao
+                      from fiscal.v$conhecimento_tipo ct
+                     where ct.conhecimento_tipo_id =  cte.conhecimento_tipo_id) as tipo_conhecimento
+                 , (select c.num_conhecimento || :"SYS_B_36" || c.serie
+                      from fiscal.v$conhecimento_anulacao ca
+                     inner join fiscal.v$conhecimento c
+                        on c.conhecimento_id = ca.conhecimento_id_original
+                     where ca.conhecimento_id_anulacao = cte.conhecimento_id) as num_conhecimento_anulado
+                 , (select c.num_conhecimento || :"SYS_B_37" || c.serie
+                      from fiscal.v$conhecimento_anulacao ca
+                     inner join fiscal.v$conhecimento c
+                        on c.conhecimento_id = ca.conhecimento_id_anulacao
+                     where ca.conhecimento_id_original = cte.conhecimento_id
+                       and ca.data_cancelamento is null) as num_conhecimento_anulacao
+                 , (select max(ccc.carga_consolidada_id) keep (dense_rank last order by cc.data_termino, ccc.date_insert)
+       from logistica.v$carga_consolidada_carga ccc
+      inner join logistica.v$carga_consolidada cc
+         on cc.carga_consolidada_id = ccc.carga_consolidada_id
+                     where ccc.solicitacao_carga_id = cte.solicitacao_carga_id
+                       and ccc.situacao_id not in (:"SYS_B_38")) as carga_consolidada_id
+                 , instr(upper(nvl(kss.pkg_parametro.fnc_valor_lista_multi(p_identificador => :"SYS_B_39"), :"SYS_B_40")), upper(ds.descricao_situacao)) as parametro_status_incluso
+                 /Vale Pedágio/
+                 , (select kss.fnc_concat_all(distinct kss.to_concat_expr(to_char(vpr.num_comprovante_vazio), :"SYS_B_41"))  
+       from oper.v$vale_pedagio_conhecimento vpc            
+      inner join oper.v$vale_pedagio_romaneio vpr
+         on vpr.vale_pedagio_romaneio_id = vpc.vale_pedagio_romaneio_id
+      where vpc.conhecimento_id = cte.conhecimento_id
+        and vpc.data_cancelamento is null
+     ) as vale_pedagio_comprov_vazio
+     , (select kss.fnc_concat_all(distinct kss.to_concat_expr(to_char(vpr.num_comprovante_carregado), :"SYS_B_42"))  
+       from oper.v$vale_pedagio_conhecimento vpc            
+      inner join oper.v$vale_pedagio_romaneio vpr
+         on vpr.vale_pedagio_romaneio_id = vpc.vale_pedagio_romaneio_id
+      where vpc.conhecimento_id = cte.conhecimento_id
+        and vpc.data_cancelamento is null
+     ) as vale_pedagio_comprov_carregado
+     , (select decode( count(vpc.vale_pedagio_conhecimento_id) , :"SYS_B_43", :"SYS_B_44", :"SYS_B_45")
+       from oper.v$vale_pedagio_conhecimento vpc            
+      inner join oper.v$vale_pedagio_romaneio vpr
+      on vpr.vale_pedagio_romaneio_id = vpc.vale_pedagio_romaneio_id
+      where vpc.conhecimento_id = cte.conhecimento_id
+        and vpc.data_cancelamento is null
+     ) as vale_pedagio_possui
+     , (select distinct vpo.identificador
+       from oper.v$vale_pedagio_conhecimento vpc            
+         inner join oper.v$vale_pedagio_romaneio vpr
+         on vpr.vale_pedagio_romaneio_id = vpc.vale_pedagio_romaneio_id
+      inner join oper.v$vale_pedagio_operadora vpo
+         on vpo.vale_pedagio_operadora_id = vpr.vale_pedagio_operadora_id
+      where vpc.conhecimento_id = cte.conhecimento_id
+           and vpc.data_cancelamento is null
+     ) as vale_pedagio_operadora
+     , (select kss.fnc_concat_all(distinct kss.to_concat_expr(to_char( p.cliente ), :"SYS_B_46")) 
+       from oper.v$vale_pedagio_conhecimento vpc            
+      inner join oper.v$vale_pedagio_romaneio vpr
+         on vpr.vale_pedagio_romaneio_id = vpc.vale_pedagio_romaneio_id
+      inner join kss.v$pessoa p
+         on p.cod_pessoa = vpr.cod_pessoa_fornecedora
+      where vpc.conhecimento_id = cte.conhecimento_id
+        and vpc.data_cancelamento is null
+     ) as vale_pedagio_fornecedora
+              from fiscal.v$conhecimento cte
+        inner join fiscal.v$documento_cte dc
+                on dc.conhecimento_id = cte.conhecimento_id
+        inner join fiscal.v$documento_status ds
+                on ds.documento_id = dc.documento_id
+        inner join sefaz.documento d
+                on d.documento_id = ds.documento_id
+          left join (
+               select max(m.mdfe_id) keep(dense_rank last order by mcte.data_emissao) mdfe_id
+                    , max(m.cte_id) keep(dense_rank last order by mcte.data_emissao) cte_id
+                 from fiscal.v$mdfe_cte m
+                inner join fiscal.v$mdfe mcte
+                   on mcte.mdfe_id = m.mdfe_id
+                group by m.cte_id
+                  ) mdfe
+            on mdfe.cte_id = cte.conhecimento_id
+          left join fiscal.v$mdfe m
+            on m.mdfe_id = mdfe.mdfe_id
+          left join fiscal.v$documento_mdfe mdoc
+            on mdoc.mdfe_id = m.mdfe_id
+          left join sefaz.v$documento_status mds
+            on mds.documento_id = mdoc.documento_id          
+          where :"SYS_B_47" = :"SYS_B_48"
+             
+                    and cte.data_emissao between to_date(:"SYS_B_49", :"SYS_B_50") and to_date(:"SYS_B_51", :"SYS_B_52")
+                 
+           order by lpad(cte.serie,:"SYS_B_53",:"SYS_B_54") asc , cte.num_conhecimento desc

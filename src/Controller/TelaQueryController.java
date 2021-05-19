@@ -6,6 +6,7 @@
 package Controller;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -40,7 +41,37 @@ public class TelaQueryController implements Initializable {
     }    
 
     @FXML
-    private void startProcces(ActionEvent event) {
+    private void startProcces(ActionEvent event) { 
+        String words[] = taQuery.getText().split("\\s");
+        ArrayList<String> views = new ArrayList<String>();
+        String owners[];
+        ArrayList<String[]> ownerViews = new ArrayList<String[]>();
+        String view; 
+        for (int i = 0; i < words.length; i++) {
+            view = words[i];
+            if(view.contains("v$")){
+                 views.add(view);
+                 System.out.println(view + "       ------ " + i);             
+            }
+        }
+        System.out.println(views.size());
+        
+        for(int j = 0; j < views.size(); j++){
+           String completeView = views.get(j);
+           String ownerView[] = completeView.split("\\.");
+           System.out.println("Owner: " + ownerView[0] + " View: " + ownerView[1]);
+           
+        }
+        
+//        String n[] = taQuery.getText().split("v\\$");
+//        ArrayList<String> views = new ArrayList<String>();
+//        for (int i = 0; i < n.length; i++) {
+//            String view = n[i];
+//            view = view.substring(0, view.indexOf(" ")).toUpperCase();
+//            views.add(view);
+//            System.out.println("V$" + views.get(i) + "       ------ " + i);
+//            
+//        }
+//        System.out.println(views.size());
     }
-    
 }

@@ -52,7 +52,7 @@ public class UsersDAO {
     }
     
     public User userLogin(String name, String password){
-        User login = objetoJPA.Login(name, password);
+        User login = objetoJPA.login(name, password);
         System.out.println( "DAO   -    " + login.getEmail());
         return login;
         }
