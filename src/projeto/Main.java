@@ -27,7 +27,8 @@ public class Main extends Application {
         primaryStage.setTitle("Oracle Query optimizer T_L");
         primaryStage.setMaximized(false);
         primaryStage.show();
-        // Veja aquei lucas.
+        // Veja aquei lucas. denovo
+        
     }
 
     /**
