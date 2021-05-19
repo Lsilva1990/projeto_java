@@ -5,9 +5,6 @@
  */
 package Model;
 
-import static Model.OracleConnection.DBPASS;
-import static Model.OracleConnection.DBURL;
-import static Model.OracleConnection.DBUSER;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -56,7 +53,7 @@ public class ConexaoOracle {
 
     public boolean ConectarOracle(String dbUser, String dbPass, String dbUrl) throws SQLException {
         DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
-        con = DriverManager.getConnection(DBURL, DBUSER, DBPASS);
+        con = DriverManager.getConnection(dbUrl, dbUser, dbPass);
         Statement statement = con.createStatement();
         ResultSet rs = statement.executeQuery("SELECT SYSDATE FROM DUAL");
         if (rs.next()) {
