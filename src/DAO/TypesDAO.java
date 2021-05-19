@@ -33,7 +33,7 @@ public class TypesDAO {
     }
    
     
-    public List<Type> getAllUsers(){
+    public List<Type> getAllTypes(){
         return objetoJPA.findTypeEntities();
     }
     
