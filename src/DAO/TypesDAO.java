@@ -1,7 +1,7 @@
 package DAO;
 
-import JPAcontroller.UserJpaController;
-import Model.User;
+import JPAcontroller.TypeJpaController;
+import Model.Type;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -11,20 +11,20 @@ import javax.persistence.Persistence;
  *
  * @author thi_s
  */
-public class UsersDAO {
-    private final UserJpaController objetoJPA;
+public class TypesDAO {
+    private final TypeJpaController objetoJPA;
     private final EntityManagerFactory emf;
 
-    public UsersDAO() {
+    public TypesDAO() {
         emf = Persistence.createEntityManagerFactory("ProjetoPU");
-        objetoJPA = new UserJpaController(emf);
+        objetoJPA = new TypeJpaController(emf);
     }
     
-    public void add(User objeto) throws Exception{
+    public void add(Type objeto) throws Exception{
         objetoJPA.create(objeto);
     }
     
-    public void edit(User objeto) throws Exception{
+    public void edit(Type objeto) throws Exception{
         objetoJPA.edit(objeto);
     }
     
@@ -33,11 +33,11 @@ public class UsersDAO {
     }
    
     
-    public List<User> getAllUsers(){
-        return objetoJPA.findUserEntities();
+    public List<Type> getAllUsers(){
+        return objetoJPA.findTypeEntities();
     }
     
-    public void persist (User objeto){
+    public void persist (Type objeto){
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
         try{
@@ -49,11 +49,5 @@ public class UsersDAO {
         }finally{
             em.close();
         }
-    }
-    
-    public User userLogin(String name, String password){
-        User login = objetoJPA.login(name, password);
-        System.out.println( "DAO   -    " + login.getEmail());
-        return login;
-        }
+    }   
 }

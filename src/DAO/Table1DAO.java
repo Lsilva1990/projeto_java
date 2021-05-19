@@ -16,7 +16,7 @@ public class Table1DAO {
     private final EntityManagerFactory emf;
 
     public Table1DAO() {
-        emf = Persistence.createEntityManagerFactory("Projeto2021");
+        emf = Persistence.createEntityManagerFactory("ProjetoPU");
         objetoJPA = new Table1JpaController(emf);
     }
     

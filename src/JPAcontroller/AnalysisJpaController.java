@@ -13,7 +13,6 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import Model.Client;
 import Model.Table1;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,11 +43,6 @@ public class AnalysisJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Client clientId = analysis.getClientId();
-            if (clientId != null) {
-                clientId = em.getReference(clientId.getClass(), clientId.getClientId());
-                analysis.setClientId(clientId);
-            }
             Collection<Table1> attachedTable1Collection = new ArrayList<Table1>();
             for (Table1 table1CollectionTable1ToAttach : analysis.getTable1Collection()) {
                 table1CollectionTable1ToAttach = em.getReference(table1CollectionTable1ToAttach.getClass(), table1CollectionTable1ToAttach.getTableId());
@@ -56,10 +50,6 @@ public class AnalysisJpaController implements Serializable {
             }
             analysis.setTable1Collection(attachedTable1Collection);
             em.persist(analysis);
-            if (clientId != null) {
-                clientId.getAnalysisCollection().add(analysis);
-                clientId = em.merge(clientId);
-            }
             for (Table1 table1CollectionTable1 : analysis.getTable1Collection()) {
                 table1CollectionTable1.getAnalysisCollection().add(analysis);
                 table1CollectionTable1 = em.merge(table1CollectionTable1);
@@ -83,14 +73,8 @@ public class AnalysisJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Analysis persistentAnalysis = em.find(Analysis.class, analysis.getAnalysisId());
-            Client clientIdOld = persistentAnalysis.getClientId();
-            Client clientIdNew = analysis.getClientId();
             Collection<Table1> table1CollectionOld = persistentAnalysis.getTable1Collection();
             Collection<Table1> table1CollectionNew = analysis.getTable1Collection();
-            if (clientIdNew != null) {
-                clientIdNew = em.getReference(clientIdNew.getClass(), clientIdNew.getClientId());
-                analysis.setClientId(clientIdNew);
-            }
             Collection<Table1> attachedTable1CollectionNew = new ArrayList<Table1>();
             for (Table1 table1CollectionNewTable1ToAttach : table1CollectionNew) {
                 table1CollectionNewTable1ToAttach = em.getReference(table1CollectionNewTable1ToAttach.getClass(), table1CollectionNewTable1ToAttach.getTableId());
@@ -99,14 +83,6 @@ public class AnalysisJpaController implements Serializable {
             table1CollectionNew = attachedTable1CollectionNew;
             analysis.setTable1Collection(table1CollectionNew);
             analysis = em.merge(analysis);
-            if (clientIdOld != null && !clientIdOld.equals(clientIdNew)) {
-                clientIdOld.getAnalysisCollection().remove(analysis);
-                clientIdOld = em.merge(clientIdOld);
-            }
-            if (clientIdNew != null && !clientIdNew.equals(clientIdOld)) {
-                clientIdNew.getAnalysisCollection().add(analysis);
-                clientIdNew = em.merge(clientIdNew);
-            }
             for (Table1 table1CollectionOldTable1 : table1CollectionOld) {
                 if (!table1CollectionNew.contains(table1CollectionOldTable1)) {
                     table1CollectionOldTable1.getAnalysisCollection().remove(analysis);
@@ -147,11 +123,6 @@ public class AnalysisJpaController implements Serializable {
                 analysis.getAnalysisId();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The analysis with id " + id + " no longer exists.", enfe);
-            }
-            Client clientId = analysis.getClientId();
-            if (clientId != null) {
-                clientId.getAnalysisCollection().remove(analysis);
-                clientId = em.merge(clientId);
             }
             Collection<Table1> table1Collection = analysis.getTable1Collection();
             for (Table1 table1CollectionTable1 : table1Collection) {

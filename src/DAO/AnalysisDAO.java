@@ -16,7 +16,7 @@ public class AnalysisDAO {
     private final EntityManagerFactory emf;
 
     public AnalysisDAO() {
-        emf = Persistence.createEntityManagerFactory("Projeto2021");
+        emf = Persistence.createEntityManagerFactory("ProjetoPU");
         objetoJPA = new AnalysisJpaController(emf);
     }
     

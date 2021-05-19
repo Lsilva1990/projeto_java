@@ -73,17 +73,17 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </Button>
+            <Button fx:id="btLogout" mnemonicParsing="false" onAction="#openNewTypeClient" prefHeight="70.0" prefWidth="101.0" text="Cadastrar Tipo Cliente" textAlignment="CENTER" wrapText="true">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Button>
             <Button fx:id="btQuery" mnemonicParsing="false" onAction="#openQueryesfxml" prefHeight="70.0" prefWidth="101.0" text="Query" textAlignment="CENTER" wrapText="true">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
             </Button>
             <Button fx:id="btGraphics" mnemonicParsing="false" onAction="#openGraphicsFxml" prefHeight="70.0" prefWidth="101.0" text="Graficos" textAlignment="CENTER" wrapText="true">
-               <VBox.margin>
-                  <Insets top="10.0" />
-               </VBox.margin>
-            </Button>
-            <Button fx:id="btLogout" mnemonicParsing="false" onAction="#logout" prefHeight="70.0" prefWidth="101.0" text="Logout" textAlignment="CENTER" wrapText="true">
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>

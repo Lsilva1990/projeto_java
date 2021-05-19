@@ -6,7 +6,6 @@
 package Model;
 
 import java.io.Serializable;
-import java.util.Collection;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,7 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -27,7 +25,8 @@ import javax.persistence.Table;
 @NamedQueries({
     @NamedQuery(name = "Client.findAll", query = "SELECT c FROM Client c"),
     @NamedQuery(name = "Client.findByClientId", query = "SELECT c FROM Client c WHERE c.clientId = :clientId"),
-    @NamedQuery(name = "Client.findByName", query = "SELECT c FROM Client c WHERE c.name = :name")})
+    @NamedQuery(name = "Client.findByName", query = "SELECT c FROM Client c WHERE c.name = :name"),
+    @NamedQuery(name = "Client.findByString", query = "SELECT c FROM Client c WHERE c.string = :string")})
 public class Client implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,11 +36,11 @@ public class Client implements Serializable {
     private Integer clientId;
     @Column(name = "name")
     private String name;
+    @Column(name = "string")
+    private String string;
     @JoinColumn(name = "type_id", referencedColumnName = "type_id")
     @ManyToOne
     private Type typeId;
-    @OneToMany(mappedBy = "clientId")
-    private Collection<Analysis> analysisCollection;
 
     public Client() {
     }
@@ -66,20 +65,20 @@ public class Client implements Serializable {
         this.name = name;
     }
 
+    public String getString() {
+        return string;
+    }
+
+    public void setString(String string) {
+        this.string = string;
+    }
+
     public Type getTypeId() {
         return typeId;
     }
 
     public void setTypeId(Type typeId) {
         this.typeId = typeId;
-    }
-
-    public Collection<Analysis> getAnalysisCollection() {
-        return analysisCollection;
-    }
-
-    public void setAnalysisCollection(Collection<Analysis> analysisCollection) {
-        this.analysisCollection = analysisCollection;
     }
 
     @Override

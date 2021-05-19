@@ -21,7 +21,7 @@ public class ClientsDAO {
     private final EntityManagerFactory emf;
 
     public ClientsDAO() {
-        emf = Persistence.createEntityManagerFactory("Projeto2021");
+        emf = Persistence.createEntityManagerFactory("ProjetoPU");
         objetoJPA = new ClientJpaController(emf);
     }
     

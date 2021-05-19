@@ -7,16 +7,13 @@ package JPAcontroller;
 
 import JPAcontroller.exceptions.NonexistentEntityException;
 import JPAcontroller.exceptions.PreexistingEntityException;
+import Model.Client;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import Model.Type;
-import Model.Analysis;
-import Model.Client;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -37,9 +34,6 @@ public class ClientJpaController implements Serializable {
     }
 
     public void create(Client client) throws PreexistingEntityException, Exception {
-        if (client.getAnalysisCollection() == null) {
-            client.setAnalysisCollection(new ArrayList<Analysis>());
-        }
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -49,25 +43,10 @@ public class ClientJpaController implements Serializable {
                 typeId = em.getReference(typeId.getClass(), typeId.getTypeId());
                 client.setTypeId(typeId);
             }
-            Collection<Analysis> attachedAnalysisCollection = new ArrayList<Analysis>();
-            for (Analysis analysisCollectionAnalysisToAttach : client.getAnalysisCollection()) {
-                analysisCollectionAnalysisToAttach = em.getReference(analysisCollectionAnalysisToAttach.getClass(), analysisCollectionAnalysisToAttach.getAnalysisId());
-                attachedAnalysisCollection.add(analysisCollectionAnalysisToAttach);
-            }
-            client.setAnalysisCollection(attachedAnalysisCollection);
             em.persist(client);
             if (typeId != null) {
                 typeId.getClientCollection().add(client);
                 typeId = em.merge(typeId);
-            }
-            for (Analysis analysisCollectionAnalysis : client.getAnalysisCollection()) {
-                Client oldClientIdOfAnalysisCollectionAnalysis = analysisCollectionAnalysis.getClientId();
-                analysisCollectionAnalysis.setClientId(client);
-                analysisCollectionAnalysis = em.merge(analysisCollectionAnalysis);
-                if (oldClientIdOfAnalysisCollectionAnalysis != null) {
-                    oldClientIdOfAnalysisCollectionAnalysis.getAnalysisCollection().remove(analysisCollectionAnalysis);
-                    oldClientIdOfAnalysisCollectionAnalysis = em.merge(oldClientIdOfAnalysisCollectionAnalysis);
-                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -90,19 +69,10 @@ public class ClientJpaController implements Serializable {
             Client persistentClient = em.find(Client.class, client.getClientId());
             Type typeIdOld = persistentClient.getTypeId();
             Type typeIdNew = client.getTypeId();
-            Collection<Analysis> analysisCollectionOld = persistentClient.getAnalysisCollection();
-            Collection<Analysis> analysisCollectionNew = client.getAnalysisCollection();
             if (typeIdNew != null) {
                 typeIdNew = em.getReference(typeIdNew.getClass(), typeIdNew.getTypeId());
                 client.setTypeId(typeIdNew);
             }
-            Collection<Analysis> attachedAnalysisCollectionNew = new ArrayList<Analysis>();
-            for (Analysis analysisCollectionNewAnalysisToAttach : analysisCollectionNew) {
-                analysisCollectionNewAnalysisToAttach = em.getReference(analysisCollectionNewAnalysisToAttach.getClass(), analysisCollectionNewAnalysisToAttach.getAnalysisId());
-                attachedAnalysisCollectionNew.add(analysisCollectionNewAnalysisToAttach);
-            }
-            analysisCollectionNew = attachedAnalysisCollectionNew;
-            client.setAnalysisCollection(analysisCollectionNew);
             client = em.merge(client);
             if (typeIdOld != null && !typeIdOld.equals(typeIdNew)) {
                 typeIdOld.getClientCollection().remove(client);
@@ -111,23 +81,6 @@ public class ClientJpaController implements Serializable {
             if (typeIdNew != null && !typeIdNew.equals(typeIdOld)) {
                 typeIdNew.getClientCollection().add(client);
                 typeIdNew = em.merge(typeIdNew);
-            }
-            for (Analysis analysisCollectionOldAnalysis : analysisCollectionOld) {
-                if (!analysisCollectionNew.contains(analysisCollectionOldAnalysis)) {
-                    analysisCollectionOldAnalysis.setClientId(null);
-                    analysisCollectionOldAnalysis = em.merge(analysisCollectionOldAnalysis);
-                }
-            }
-            for (Analysis analysisCollectionNewAnalysis : analysisCollectionNew) {
-                if (!analysisCollectionOld.contains(analysisCollectionNewAnalysis)) {
-                    Client oldClientIdOfAnalysisCollectionNewAnalysis = analysisCollectionNewAnalysis.getClientId();
-                    analysisCollectionNewAnalysis.setClientId(client);
-                    analysisCollectionNewAnalysis = em.merge(analysisCollectionNewAnalysis);
-                    if (oldClientIdOfAnalysisCollectionNewAnalysis != null && !oldClientIdOfAnalysisCollectionNewAnalysis.equals(client)) {
-                        oldClientIdOfAnalysisCollectionNewAnalysis.getAnalysisCollection().remove(analysisCollectionNewAnalysis);
-                        oldClientIdOfAnalysisCollectionNewAnalysis = em.merge(oldClientIdOfAnalysisCollectionNewAnalysis);
-                    }
-                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -162,11 +115,6 @@ public class ClientJpaController implements Serializable {
             if (typeId != null) {
                 typeId.getClientCollection().remove(client);
                 typeId = em.merge(typeId);
-            }
-            Collection<Analysis> analysisCollection = client.getAnalysisCollection();
-            for (Analysis analysisCollectionAnalysis : analysisCollection) {
-                analysisCollectionAnalysis.setClientId(null);
-                analysisCollectionAnalysis = em.merge(analysisCollectionAnalysis);
             }
             em.remove(client);
             em.getTransaction().commit();

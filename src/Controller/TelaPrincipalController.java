@@ -90,9 +90,6 @@ public class TelaPrincipalController implements Initializable {
         
     }
 
-    @FXML
-    private void logout(ActionEvent event) {
-    }
     
     private void openTela(String name) throws IOException{
         System.out.println("Abrindo a Tela: " + name);
@@ -101,5 +98,10 @@ public class TelaPrincipalController implements Initializable {
         secondStage.setScene(scene);
         secondStage.setTitle("Oracle Query optimizer T_L");
         secondStage.show();
+    }
+
+    @FXML
+    private void openNewTypeClient(ActionEvent event) throws IOException {
+         openTela("telaCadtipoCliente.fxml");
     }
 }
